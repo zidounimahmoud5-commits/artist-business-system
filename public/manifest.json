@@ -1,0 +1,12 @@
+{
+  "name": "Artist Business System",
+  "short_name": "Studio",
+  "description": "Run your art studio like a real business.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F1E8",
+  "theme_color": "#2B2925",
+  "icons": []
+}
