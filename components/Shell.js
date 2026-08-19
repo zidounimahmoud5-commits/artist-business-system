@@ -12,7 +12,7 @@ const NAV = [
 const MOBILE_NAV = [["/dashboard", "dashboard"], ["/artworks", "artworks"], ["/sales", "sales"], ["/clients", "clients"], ["/settings", "more"]];
 
 export default function Shell({ children }) {
-  const { t, lang, profile, logout } = useApp();
+  const { t, lang, profile, logout, setLanguage } = useApp();
   const pathname = usePathname();
   const dir = lang === "ar" ? "rtl" : "ltr";
 
@@ -22,6 +22,22 @@ export default function Shell({ children }) {
       "--font-body": lang === "ar" ? "'IBM Plex Sans Arabic', sans-serif" : "'Inter', sans-serif",
       fontFamily: "var(--font-body)", background: "#F5F1E8", minHeight: "100vh", color: "#2B2925",
     }}>
+      <div className="abs-topbar" style={{ display: "none" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 17 }}>
+          {profile?.studio_name || profile?.artist_name || t.appName}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <button onClick={() => setLanguage(lang === "ar" ? "en" : "ar")} style={{
+            background: "none", border: "1px solid #4A473F", borderRadius: 8, color: "#C9C2AE",
+            padding: "6px 12px", fontSize: 13, cursor: "pointer",
+          }}>{lang === "ar" ? "EN" : "AR"}</button>
+          <button onClick={logout} style={{
+            background: "none", border: "1px solid #4A473F", borderRadius: 8, color: "#C9C2AE",
+            padding: "6px 12px", fontSize: 13, cursor: "pointer",
+          }}>{t.nav.logout}</button>
+        </div>
+      </div>
+
       <div style={{ display: "flex", minHeight: "100vh" }}>
         <div className="abs-sidebar" style={{ width: 220, background: "#2B2925", color: "#EDE7D9", padding: "24px 16px", flexShrink: 0 }}>
           <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 19, marginBottom: 4, lineHeight: 1.25 }}>
@@ -36,7 +52,8 @@ export default function Shell({ children }) {
               fontSize: 14.5, textDecoration: "none", marginBottom: 2,
             }}>{t.nav[key]}</Link>
           ))}
-          <button onClick={logout} style={{ marginTop: 20, background: "none", border: "1px solid #4A473F", borderRadius: 8, color: "#C9C2AE", padding: "8px 14px", fontSize: 13, cursor: "pointer", width: "100%" }}>{t.nav.logout}</button>
+          <button onClick={() => setLanguage(lang === "ar" ? "en" : "ar")} style={{ marginTop: 20, background: "none", border: "1px solid #4A473F", borderRadius: 8, color: "#C9C2AE", padding: "8px 14px", fontSize: 13, cursor: "pointer", width: "100%" }}>{lang === "ar" ? "English" : "العربية"}</button>
+          <button onClick={logout} style={{ marginTop: 8, background: "none", border: "1px solid #4A473F", borderRadius: 8, color: "#C9C2AE", padding: "8px 14px", fontSize: 13, cursor: "pointer", width: "100%" }}>{t.nav.logout}</button>
         </div>
 
         <div className="abs-main" style={{ flex: 1, padding: "28px 32px 90px", maxWidth: 1100 }}>
@@ -62,6 +79,7 @@ export default function Shell({ children }) {
         tr:hover td { background: #FBF8F1; }
         @media (max-width: 860px) {
           .abs-sidebar { display: none; }
+          .abs-topbar { display: flex !important; justify-content: space-between; align-items: center; background: #2B2925; color: #EDE7D9; padding: 14px 16px; position: sticky; top: 0; z-index: 30; }
           .abs-main { padding: 18px 16px 90px !important; }
           .abs-bottomnav { display: flex !important; position: fixed; bottom: 0; inset-inline: 0; background: #2B2925; z-index: 40; justify-content: space-around; padding: 8px 4px; }
         }
