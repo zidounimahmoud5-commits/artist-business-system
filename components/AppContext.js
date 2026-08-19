@@ -42,6 +42,13 @@ export function AppProvider({ children }) {
     router.replace("/login");
   }
 
+  async function setLanguage(newLang) {
+    setProfile((prev) => ({ ...prev, language: newLang }));
+    if (session) {
+      await supabase.from("profiles").update({ language: newLang }).eq("id", session.user.id);
+    }
+  }
+
   const lang = profile?.language || "en";
   const t = DICT[lang];
   const currency = profile?.currency || "USD";
@@ -52,7 +59,7 @@ export function AppProvider({ children }) {
   if (session === null) return null; // redirecting
 
   return (
-    <AppCtx.Provider value={{ session, profile, refreshProfile, logout, lang, t, currency }}>
+    <AppCtx.Provider value={{ session, profile, refreshProfile, logout, lang, t, currency, setLanguage }}>
       {children}
     </AppCtx.Provider>
   );
