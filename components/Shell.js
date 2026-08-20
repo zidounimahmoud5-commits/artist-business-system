@@ -83,7 +83,12 @@ export default function Shell({ children }) {
         table { width: 100%; border-collapse: collapse; }
         th { text-align: start; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: #9C9280; padding: 8px 10px; border-bottom: 1px solid #EDE4D0; }
         td { padding: 10px; border-bottom: 1px solid #F2EBDA; font-size: 14px; }
-        tr:hover td { background: #FBF7EF; }
+        tr:hover td { background: #FBF7EF; } 
+        @media print {
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; top: 0; left: 0; width: 100%; padding: 20px; }
+}
         @media (max-width: 860px) {
           .abs-sidebar { display: none; }
           .abs-topbar { display: flex !important; justify-content: space-between; align-items: center; background: ${INK_DARK}; padding: 14px 16px; position: sticky; top: 0; z-index: 30; }
