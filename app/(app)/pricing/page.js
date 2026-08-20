@@ -1,20 +1,79 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Calculator, BarChart3, Frame, DollarSign, Clock, Package,
+  TrendingUp, MoreHorizontal, Truck, Gift, Receipt, Tag, Image as ImageIcon,
+  ShieldCheck, Percent, Sparkles, Lightbulb, ChevronDown,
+} from "lucide-react";
 import { useApp } from "../../../components/AppContext";
-import { SectionTitle, Card, Field, Input, Btn, Row } from "../../../components/ui";
+import { Card, Field, Input, Btn } from "../../../components/ui";
 import { money } from "../../../lib/helpers";
+
+const INK = "#241F1A";
+const GOLD = "#A47C3E";
+const GOLD_DEEP = "#8C6530";
+const TEXT_MUTED = "#9C9280";
+const TEXT_SECONDARY = "#6B6155";
+const BORDER = "#EDE4D0";
+const GREEN = "#5F7A5A";
+const GREEN_BG = "rgba(95,122,90,0.08)";
+const AMBER_BG = "rgba(164,124,62,0.12)";
+
+function IconBadge({ icon: Icon, tone = "gold" }) {
+  const bg = tone === "green" ? "rgba(95,122,90,0.14)" : AMBER_BG;
+  const color = tone === "green" ? GREEN : GOLD_DEEP;
+  return (
+    <div style={{ width: 40, height: 40, borderRadius: 12, background: bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <Icon size={19} color={color} strokeWidth={2} />
+    </div>
+  );
+}
+
+function FieldTile({ icon: Icon, label, value, onChange, unit }) {
+  return (
+    <div style={{ textAlign: "center", padding: "10px 6px" }}>
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: 8 }}>
+        <Icon size={22} color={GOLD_DEEP} strokeWidth={1.75} />
+      </div>
+      <div style={{ fontSize: 12.5, color: TEXT_SECONDARY, fontWeight: 600, marginBottom: 8 }}>{label}</div>
+      <div style={{ display: "flex", alignItems: "center", border: `1px solid ${BORDER}`, borderRadius: 9, overflow: "hidden", background: "#FFFDF9" }}>
+        <input
+          type="number"
+          value={value}
+          onChange={onChange}
+          style={{ flex: 1, minWidth: 0, border: "none", outline: "none", background: "transparent", padding: "9px 8px", fontSize: 14.5, color: INK, textAlign: "center", fontFamily: "inherit" }}
+        />
+        <span style={{ fontSize: 11.5, color: TEXT_MUTED, padding: "0 10px", borderInlineStart: `1px solid ${BORDER}`, alignSelf: "stretch", display: "flex", alignItems: "center" }}>{unit}</span>
+      </div>
+    </div>
+  );
+}
+
+function ResultRow({ icon: Icon, label, value }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 2px", borderBottom: `1px solid #F2EBDA` }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <Icon size={17} color={GOLD_DEEP} strokeWidth={1.8} />
+        <span style={{ fontSize: 14, color: TEXT_SECONDARY }}>{label}</span>
+      </div>
+      <span style={{ fontWeight: 700, color: GREEN, fontSize: 15 }}>{value}</span>
+    </div>
+  );
+}
 
 export default function PricingPage() {
   const { t, lang, currency, profile } = useApp();
   const router = useRouter();
   const p = t.pricing;
+  const [showMore, setShowMore] = useState(false);
   const [form, setForm] = useState({
     materialCost: "", laborHours: "", laborRate: profile?.default_hourly_rate || 15,
     frameCost: "", packagingCost: "", shippingCost: "", otherCosts: "",
     margin: profile?.default_margin || 60, galleryCommission: profile?.default_gallery_commission || 40,
   });
   function set(k, v) { setForm({ ...form, [k]: v }); }
+
   const totalCost = Number(form.materialCost || 0) + Number(form.laborHours || 0) * Number(form.laborRate || 0) +
     Number(form.frameCost || 0) + Number(form.packagingCost || 0) + Number(form.shippingCost || 0) + Number(form.otherCosts || 0);
   const directPrice = totalCost * (1 + Number(form.margin || 0) / 100);
@@ -23,44 +82,106 @@ export default function PricingPage() {
   const expectedProfit = directPrice - totalCost;
   const profitMarginPct = directPrice > 0 ? (expectedProfit / directPrice) * 100 : 0;
 
+  const hourUnit = p.unitHour || (lang === "ar" ? "ساعة" : "hrs");
+
+  const FIELDS = [
+    { key: "frameCost", icon: Frame, unit: currency },
+    { key: "laborRate", icon: DollarSign, unit: currency },
+    { key: "laborHours", icon: Clock, unit: hourUnit },
+    { key: "materialCost", icon: Package, unit: currency },
+    { key: "margin", icon: TrendingUp, unit: "%" },
+    { key: "otherCosts", icon: MoreHorizontal, unit: currency },
+    { key: "shippingCost", icon: Truck, unit: currency },
+    { key: "packagingCost", icon: Gift, unit: currency },
+  ];
+
   return (
     <div>
-      <SectionTitle>{p.title}</SectionTitle>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-        <Card>
-          <div style={{ fontWeight: 700, marginBottom: 12 }}>{p.inputs}</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 14px" }}>
-            <Field label={p.materialCost}><Input type="number" value={form.materialCost} onChange={(e) => set("materialCost", e.target.value)} /></Field>
-            <Field label={p.laborHours}><Input type="number" value={form.laborHours} onChange={(e) => set("laborHours", e.target.value)} /></Field>
-            <Field label={p.laborRate}><Input type="number" value={form.laborRate} onChange={(e) => set("laborRate", e.target.value)} /></Field>
-            <Field label={p.frameCost}><Input type="number" value={form.frameCost} onChange={(e) => set("frameCost", e.target.value)} /></Field>
-            <Field label={p.packagingCost}><Input type="number" value={form.packagingCost} onChange={(e) => set("packagingCost", e.target.value)} /></Field>
-            <Field label={p.shippingCost}><Input type="number" value={form.shippingCost} onChange={(e) => set("shippingCost", e.target.value)} /></Field>
-            <Field label={p.otherCosts}><Input type="number" value={form.otherCosts} onChange={(e) => set("otherCosts", e.target.value)} /></Field>
-            <Field label={p.margin}><Input type="number" value={form.margin} onChange={(e) => set("margin", e.target.value)} /></Field>
-            <Field label={p.galleryCommission}><Input type="number" value={form.galleryCommission} onChange={(e) => set("galleryCommission", e.target.value)} /></Field>
-          </div>
-        </Card>
-        <Card>
-          <div style={{ fontWeight: 700, marginBottom: 12 }}>{p.results}</div>
-          <Row label={p.totalCost} value={money(totalCost, currency, lang)} />
-          <Row label={p.directPrice} value={money(directPrice, currency, lang)} />
-          <Row label={p.galleryPrice} value={money(galleryPrice, currency, lang)} />
-          <Row label={p.minPrice} value={money(minPrice, currency, lang)} />
-          <Row label={p.expectedProfit} value={money(expectedProfit, currency, lang)} />
-          <Row label={p.profitMargin} value={profitMarginPct.toFixed(1) + "%"} />
-          <div style={{ marginTop: 16 }}>
-            <Btn onClick={() => {
-              sessionStorage.setItem("abs_pricing_prefill", JSON.stringify({
-                material_cost: form.materialCost, labor_hours: form.laborHours, labor_rate: form.laborRate,
-                frame_cost: form.frameCost, packaging_cost: form.packagingCost, shipping_cost: form.shippingCost, other_costs: form.otherCosts,
-                suggested_price: +directPrice.toFixed(2), min_price: +minPrice.toFixed(2), gallery_price: +galleryPrice.toFixed(2),
-              }));
-              router.push("/artworks?prefill=1");
-            }}>{p.useCalculator}</Btn>
-          </div>
-        </Card>
+      <div style={{ textAlign: "center", marginBottom: 30 }}>
+        <h1 style={{ fontFamily: "var(--font-display)", fontSize: 30, fontWeight: 600, color: INK, margin: "0 0 10px", position: "relative", display: "inline-block", paddingBottom: 12 }}>
+          {p.title}
+          <span style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: 60, height: 2.5, backgroundImage: `linear-gradient(to right, ${GOLD_DEEP}, ${GOLD})`, borderRadius: 2 }} />
+        </h1>
+        <div style={{ fontSize: 14.5, color: TEXT_SECONDARY }}>{p.subtitle}</div>
       </div>
+
+      <Card style={{ marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600, color: INK }}>{p.inputs}</div>
+          <IconBadge icon={Calculator} tone="gold" />
+        </div>
+        <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "18px 10px" }}>
+          {FIELDS.map((f) => (
+            <FieldTile key={f.key} icon={f.icon} label={p[f.key]} unit={f.unit} value={form[f.key]} onChange={(e) => set(f.key, e.target.value)} />
+          ))}
+        </div>
+
+        <button onClick={() => setShowMore((s) => !s)} style={{
+          width: "100%", marginTop: 18, background: "#FBF7EF", border: `1px solid ${BORDER}`, borderRadius: 10,
+          padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", fontFamily: "inherit",
+        }}>
+          <span style={{ fontSize: 13.5, color: TEXT_SECONDARY, fontWeight: 600 }}>{p.moreDetails}</span>
+          <ChevronDown size={18} color={TEXT_SECONDARY} style={{ transform: showMore ? "rotate(180deg)" : "none", transition: "transform 0.2s ease" }} />
+        </button>
+
+        {showMore && (
+          <div style={{ marginTop: 16, paddingTop: 4 }}>
+            <Field label={p.galleryCommission}>
+              <Input type="number" value={form.galleryCommission} onChange={(e) => set("galleryCommission", e.target.value)} />
+            </Field>
+          </div>
+        )}
+      </Card>
+
+      <Card style={{ marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600, color: INK }}>{p.results}</div>
+          <IconBadge icon={BarChart3} tone="green" />
+        </div>
+
+        <ResultRow icon={Receipt} label={p.totalCost} value={money(totalCost, currency, lang)} />
+        <ResultRow icon={Tag} label={p.directPrice} value={money(directPrice, currency, lang)} />
+        <ResultRow icon={ImageIcon} label={p.galleryPrice} value={money(galleryPrice, currency, lang)} />
+        <ResultRow icon={ShieldCheck} label={p.minPrice} value={money(minPrice, currency, lang)} />
+        <ResultRow icon={TrendingUp} label={p.expectedProfit} value={money(expectedProfit, currency, lang)} />
+
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: GREEN_BG, borderRadius: 10, padding: "14px 16px", margin: "14px 0" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Percent size={17} color={GREEN} strokeWidth={2} />
+            <span style={{ fontSize: 14, fontWeight: 700, color: GREEN }}>{p.profitMargin}</span>
+          </div>
+          <span style={{ fontWeight: 700, color: GREEN, fontSize: 17 }}>{profitMarginPct.toFixed(1)}%</span>
+        </div>
+
+        <Btn
+          onClick={() => {
+            sessionStorage.setItem("abs_pricing_prefill", JSON.stringify({
+              material_cost: form.materialCost, labor_hours: form.laborHours, labor_rate: form.laborRate,
+              frame_cost: form.frameCost, packaging_cost: form.packagingCost, shipping_cost: form.shippingCost, other_costs: form.otherCosts,
+              suggested_price: +directPrice.toFixed(2), min_price: +minPrice.toFixed(2), gallery_price: +galleryPrice.toFixed(2),
+            }));
+            router.push("/artworks?prefill=1");
+          }}
+          style={{ width: "100%", padding: "13px 18px", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 14.5 }}
+        >
+          <Sparkles size={16} />
+          {p.useCalculator}
+        </Btn>
+      </Card>
+
+      <Card style={{ display: "flex", alignItems: "flex-start", gap: 14, background: AMBER_BG, border: "none" }}>
+        <Lightbulb size={20} color={GOLD_DEEP} strokeWidth={1.8} style={{ flexShrink: 0, marginTop: 2 }} />
+        <div>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: GOLD_DEEP, fontSize: 14.5, marginBottom: 4 }}>{p.tipTitle}</div>
+          <div style={{ fontSize: 13.5, color: TEXT_SECONDARY, lineHeight: 1.6 }}>{p.tip}</div>
+        </div>
+      </Card>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .pricing-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+      `}</style>
     </div>
   );
 }
