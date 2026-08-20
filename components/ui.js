@@ -94,4 +94,11 @@ export function EmptyState({ text, actionLabel, onAction }) {
   );
 }
 
-export fu
+export function Row({ label, value, valueColor }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: 13.5 }}>
+      <span style={{ color: TEXT_SECONDARY }}>{label}</span>
+      <span style={{ fontWeight: 600, color: valueColor || INK }}>{value}</span>
+    </div>
+  );
+}
