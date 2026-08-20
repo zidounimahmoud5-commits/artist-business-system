@@ -9,7 +9,7 @@ const NAV = [
   ["/commissions", "commissions"], ["/clients", "clients"], ["/exhibitions", "exhibitions"],
   ["/sales", "sales"], ["/expenses", "expenses"], ["/settings", "settings"],
 ];
-const MOBILE_NAV = [["/dashboard", "dashboard"], ["/artworks", "artworks"], ["/sales", "sales"], ["/clients", "clients"], ["/settings", "more"]];
+const MOBILE_NAV = [["/dashboard", "dashboard"], ["/artworks", "artworks"], ["/sales", "sales"], ["/clients", "clients"], ["/more", "more"]];
 
 export default function Shell({ children }) {
   const { t, lang, profile, logout, setLanguage } = useApp();
