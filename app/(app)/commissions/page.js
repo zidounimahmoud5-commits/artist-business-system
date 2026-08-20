@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { useApp } from "../../../components/AppContext";
 import { supabase } from "../../../lib/supabaseClient";
 import { SectionTitle, Btn, Card, Field, Input, Select, TextArea, Modal, EmptyState, Badge } from "../../../components/ui";
@@ -33,7 +34,7 @@ export default function CommissionsPage() {
       {commissions.length === 0 ? <EmptyState text={c.empty} actionLabel={c.add} onAction={() => setFormModal({ mode: "new" })} /> : (
         <Card style={{ padding: 0, overflowX: "auto" }}>
           <table>
-            <thead><tr><th>{c.client}</th><th>{c.concept}</th><th>{c.price}</th><th>{c.remaining}</th><th>{c.deadline}</th><th>{c.status}</th><th></th></tr></thead>
+            <thead><tr><th>{c.client}</th><th>{c.concept}</th><th>{c.price}</th><th>{c.remaining}</th><th>{c.deadline}</th><th>{c.status}</th><th></th><th></th></tr></thead>
             <tbody>
               {commissions.map((m) => {
                 const remaining = Number(m.price || 0) - Number(m.deposit || 0);
@@ -47,6 +48,9 @@ export default function CommissionsPage() {
                     <td>{money(remaining, currency, lang)}</td>
                     <td style={{ color: overdue ? "#9A4A3E" : undefined, fontWeight: overdue ? 700 : 400 }}>{overdue ? c.overdue : (dLeft !== null ? `${dLeft} ${c.daysLeft}` : "—")}</td>
                     <td><Badge label={t.commissionStatus[m.status]} color="#B08D57" /></td>
+                    <td onClick={(e) => e.stopPropagation()}>
+                      <Link href={`/contract/${m.id}`} style={{ fontSize: 13, color: "#A47C3E", fontWeight: 600, textDecoration: "none" }}>📄</Link>
+                    </td>
                     <td onClick={(e) => e.stopPropagation()}>
                       <Btn variant="danger" style={{ padding: "4px 10px", fontSize: 12 }} onClick={async () => { await supabase.from("commissions").delete().eq("id", m.id).eq("user_id", session.user.id); loadAll(); }}>{t.common.delete}</Btn>
                     </td>
