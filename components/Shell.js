@@ -6,7 +6,6 @@ import { useApp } from "./AppContext";
 
 const INK_DARK = "#1E1A16";
 const SIDEBAR_HOVER = "#2A241D";
-const BG = "#FAF7F0";
 const TEXT_ON_DARK = "#EDE7D9";
 const TEXT_ON_DARK_MUTED = "#B5AC98";
 const BORDER_ON_DARK = "#3A342B";
@@ -25,10 +24,33 @@ export default function Shell({ children }) {
 
   return (
     <div dir={dir} style={{
-      "--font-display": lang === "ar" ? "'Amiri', serif" : "'Fraunces', serif",
+      "--font-display": lang === "ar" ? "'Amiri', serif" : "'Playfair Display', serif",
       "--font-body": lang === "ar" ? "'IBM Plex Sans Arabic', sans-serif" : "'Inter', sans-serif",
-      fontFamily: "var(--font-body)", background: BG, minHeight: "100vh", color: "#241F1A",
+      fontFamily: "var(--font-body)", minHeight: "100vh", color: "#241F1A", position: "relative",
     }}>
+      {/* Artistic background layer (fixed, behind everything) */}
+      <div aria-hidden="true" style={{
+        position: "fixed", inset: 0, zIndex: -2,
+        background: `
+          radial-gradient(circle at 12% 18%, rgba(240,199,196,0.55) 0%, transparent 42%),
+          radial-gradient(circle at 88% 12%, rgba(163,206,198,0.5) 0%, transparent 45%),
+          radial-gradient(circle at 78% 78%, rgba(203,172,120,0.4) 0%, transparent 50%),
+          radial-gradient(circle at 8% 85%, rgba(233,196,206,0.5) 0%, transparent 48%),
+          radial-gradient(circle at 50% 45%, rgba(212,178,120,0.28) 0%, transparent 55%),
+          linear-gradient(160deg, #FBF3EC 0%, #F6EFE4 35%, #EFF1EA 65%, #F8EFE9 100%)
+        `,
+      }} />
+      {/* Subtle gold vein texture */}
+      <div aria-hidden="true" style={{
+        position: "fixed", inset: 0, zIndex: -1,
+        opacity: 0.5,
+        backgroundImage: `
+          linear-gradient(115deg, transparent 40%, rgba(196,155,74,0.10) 41%, rgba(196,155,74,0.10) 41.4%, transparent 42%),
+          linear-gradient(25deg, transparent 60%, rgba(196,155,74,0.08) 61%, rgba(196,155,74,0.08) 61.3%, transparent 62%),
+          linear-gradient(155deg, transparent 75%, rgba(196,155,74,0.09) 76%, rgba(196,155,74,0.09) 76.5%, transparent 77%)
+        `,
+      }} />
+
       <div className="abs-topbar" style={{ display: "none" }}>
         <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 17, color: TEXT_ON_DARK }}>
           {profile?.studio_name || profile?.artist_name || t.appName}
@@ -77,13 +99,13 @@ export default function Shell({ children }) {
       </div>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
         * { box-sizing: border-box; }
         body { margin: 0; }
         table { width: 100%; border-collapse: collapse; }
         th { text-align: start; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: #9C9280; padding: 8px 10px; border-bottom: 1px solid #EDE4D0; }
         td { padding: 10px; border-bottom: 1px solid #F2EBDA; font-size: 14px; }
-        tr:hover td { background: #FBF7EF; } 
+        tr:hover td { background: rgba(251,247,239,0.7); }
         @media print {
   body * { visibility: hidden; }
   .print-area, .print-area * { visibility: visible; }
