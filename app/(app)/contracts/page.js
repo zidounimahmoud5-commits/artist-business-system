@@ -2,11 +2,18 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { FileText, Tag, CalendarClock, User } from "lucide-react";
 import { useApp } from "../../../components/AppContext";
 import { supabase } from "../../../lib/supabaseClient";
 import { SectionTitle, Btn, Card, Field, Input, Select, TextArea, Modal, EmptyState } from "../../../components/ui";
 import { money } from "../../../lib/helpers";
 import { PAYMENT_METHOD_KEYS } from "../../../lib/i18n";
+
+const TEXT_SECONDARY = "#6B6155";
+const TEXT_MUTED = "#9C9280";
+const GOLD_DEEP = "#8C6530";
+const BORDER = "#EDE4D0";
+const INK = "#241F1A";
 
 export default function ContractsPage() {
   const { t, lang, currency, session } = useApp();
@@ -44,6 +51,11 @@ export default function ContractsPage() {
   if (loading) return <div style={{ color: "#8A8371" }}>Loading…</div>;
   const clientMap = Object.fromEntries(clients.map((cl) => [cl.id, cl]));
 
+  async function removeContract(id) {
+    await supabase.from("contracts").delete().eq("id", id).eq("user_id", session.user.id);
+    loadAll();
+  }
+
   return (
     <div>
       <SectionTitle right={<Btn onClick={() => setFormModal({ mode: "new" })}>{c.add}</Btn>}>{c.title}</SectionTitle>
@@ -51,38 +63,86 @@ export default function ContractsPage() {
       {contracts.length === 0 ? (
         <EmptyState text={c.empty} actionLabel={c.add} onAction={() => setFormModal({ mode: "new" })} />
       ) : (
-        <Card style={{ padding: 0, overflowX: "auto" }}>
-          <table>
-            <thead><tr><th>{c.party}</th><th>{c.subject}</th><th>{c.price}</th><th>{c.deadline}</th><th></th><th></th></tr></thead>
-            <tbody>
-              {contracts.map((ct) => {
-                const cl = clientMap[ct.client_id];
-                return (
-                  <tr key={ct.id}>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{cl?.name || "—"}</div>
-                      <div style={{ fontSize: 12, color: "#9C9280" }}>{cl ? t.clientType[cl.type] : ""}</div>
-                    </td>
-                    <td>{ct.subject}</td>
-                    <td>{money(ct.price, currency, lang)}</td>
-                    <td>{ct.deadline || "—"}</td>
-                    <td>
-                      <Link href={`/contracts/${ct.id}`}>
-                        <Btn variant="ghost" style={{ padding: "4px 10px", fontSize: 12 }}>{c.view}</Btn>
-                      </Link>
-                    </td>
-                    <td>
-                      <Btn variant="danger" style={{ padding: "4px 10px", fontSize: 12 }} onClick={async () => {
-                        await supabase.from("contracts").delete().eq("id", ct.id).eq("user_id", session.user.id);
-                        loadAll();
-                      }}>{c.delete}</Btn>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </Card>
+        <>
+          {/* Mobile: stacked cards */}
+          <div className="contracts-cards">
+            {contracts.map((ct) => {
+              const cl = clientMap[ct.client_id];
+              return (
+                <Card key={ct.id} style={{ marginBottom: 14 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                    <User size={16} color={GOLD_DEEP} strokeWidth={1.8} />
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 15.5, color: INK }}>{cl?.name || "—"}</div>
+                      <div style={{ fontSize: 12, color: TEXT_MUTED }}>{cl ? t.clientType[cl.type] : ""}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8, padding: "8px 0", borderTop: `1px solid ${BORDER}` }}>
+                    <FileText size={15} color={GOLD_DEEP} strokeWidth={1.8} style={{ flexShrink: 0, marginTop: 2 }} />
+                    <div style={{ fontSize: 13.5, color: TEXT_SECONDARY, lineHeight: 1.5 }}>{ct.subject}</div>
+                  </div>
+
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderTop: `1px solid ${BORDER}` }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <Tag size={15} color={GOLD_DEEP} strokeWidth={1.8} />
+                      <span style={{ fontSize: 13, color: TEXT_SECONDARY }}>{c.price}</span>
+                    </div>
+                    <span style={{ fontWeight: 700, fontSize: 14.5, color: INK }}>{money(ct.price, currency, lang)}</span>
+                  </div>
+
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderTop: `1px solid ${BORDER}`, marginBottom: 14 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <CalendarClock size={15} color={GOLD_DEEP} strokeWidth={1.8} />
+                      <span style={{ fontSize: 13, color: TEXT_SECONDARY }}>{c.deadline}</span>
+                    </div>
+                    <span style={{ fontWeight: 600, fontSize: 13.5, color: INK }}>{ct.deadline || "—"}</span>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <Link href={`/contracts/${ct.id}`} style={{ flex: 1 }}>
+                      <Btn variant="ghost" style={{ width: "100%" }}>{c.view}</Btn>
+                    </Link>
+                    <Btn variant="danger" style={{ flex: 1 }} onClick={() => removeContract(ct.id)}>{c.delete}</Btn>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Desktop: table */}
+          <div className="contracts-table-wrap">
+            <Card style={{ padding: 0, overflowX: "auto" }}>
+              <table>
+                <thead><tr><th>{c.party}</th><th>{c.subject}</th><th>{c.price}</th><th>{c.deadline}</th><th></th><th></th></tr></thead>
+                <tbody>
+                  {contracts.map((ct) => {
+                    const cl = clientMap[ct.client_id];
+                    return (
+                      <tr key={ct.id}>
+                        <td>
+                          <div style={{ fontWeight: 600 }}>{cl?.name || "—"}</div>
+                          <div style={{ fontSize: 12, color: "#9C9280" }}>{cl ? t.clientType[cl.type] : ""}</div>
+                        </td>
+                        <td>{ct.subject}</td>
+                        <td>{money(ct.price, currency, lang)}</td>
+                        <td>{ct.deadline || "—"}</td>
+                        <td>
+                          <Link href={`/contracts/${ct.id}`}>
+                            <Btn variant="ghost" style={{ padding: "4px 10px", fontSize: 12 }}>{c.view}</Btn>
+                          </Link>
+                        </td>
+                        <td>
+                          <Btn variant="danger" style={{ padding: "4px 10px", fontSize: 12 }} onClick={() => removeContract(ct.id)}>{c.delete}</Btn>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </Card>
+          </div>
+        </>
       )}
 
       {formModal && (
@@ -98,6 +158,14 @@ export default function ContractsPage() {
           }}
         />
       )}
+
+      <style>{`
+        .contracts-cards { display: none; }
+        @media (max-width: 860px) {
+          .contracts-cards { display: block; }
+          .contracts-table-wrap { display: none; }
+        }
+      `}</style>
     </div>
   );
 }
