@@ -6,6 +6,7 @@ import { useApp } from "../../../components/AppContext";
 import { supabase } from "../../../lib/supabaseClient";
 import { SectionTitle, Btn, Card, Field, Input, Select, TextArea, Modal, EmptyState } from "../../../components/ui";
 import { money } from "../../../lib/helpers";
+import { PAYMENT_METHOD_KEYS } from "../../../lib/i18n";
 
 export default function ContractsPage() {
   const { t, lang, currency, session } = useApp();
@@ -115,6 +116,7 @@ function ContractForm({ t, clients, commissions, initialCommissionId, onClose, o
     price: startCommission?.price || "",
     deposit: startCommission?.deposit || "",
     terms: c.defaultTerms,
+    paymentMethod: startCommission?.payment_method || "cash",
   });
   const [saving, setSaving] = useState(false);
   function set(k, v) { setForm((f) => ({ ...f, [k]: v })); }
@@ -133,6 +135,7 @@ function ContractForm({ t, clients, commissions, initialCommissionId, onClose, o
         deadline: cm.deadline || f.deadline,
         price: cm.price ?? f.price,
         deposit: cm.deposit ?? f.deposit,
+        paymentMethod: cm.payment_method || f.paymentMethod,
       }));
     }
   }
@@ -164,6 +167,7 @@ function ContractForm({ t, clients, commissions, initialCommissionId, onClose, o
             <Field label={c.price}><Input type="number" value={form.price} onChange={(e) => set("price", e.target.value)} /></Field>
             <Field label={c.deposit}><Input type="number" value={form.deposit} onChange={(e) => set("deposit", e.target.value)} /></Field>
             <Field label={c.deadline}><Input type="date" value={form.deadline || ""} onChange={(e) => set("deadline", e.target.value)} /></Field>
+            <Field label={t.paymentMethod.label}><Select value={form.paymentMethod} onChange={(e) => set("paymentMethod", e.target.value)}>{PAYMENT_METHOD_KEYS.map((k) => <option key={k} value={k}>{t.paymentMethod[k]}</option>)}</Select></Field>
           </div>
           <Field label={c.terms}><TextArea value={form.terms} onChange={(e) => set("terms", e.target.value)} style={{ minHeight: 110 }} /></Field>
 
@@ -180,6 +184,7 @@ function ContractForm({ t, clients, commissions, initialCommissionId, onClose, o
               price: form.price || 0,
               deposit: form.deposit || 0,
               terms: form.terms,
+              payment_method: form.paymentMethod,
             });
             setSaving(false);
             onClose();
