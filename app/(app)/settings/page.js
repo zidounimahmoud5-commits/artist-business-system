@@ -6,7 +6,7 @@ import { SectionTitle, Card, Field, Input, Select, Btn } from "../../../componen
 import { CURRENCIES } from "../../../lib/i18n";
 
 export default function SettingsPage() {
-  const { t, profile, refreshProfile, session } = useApp();
+  const { t, lang, profile, refreshProfile, session } = useApp();
   const s = t.settings;
   const [form, setForm] = useState({
     artist_name: profile.artist_name || "", studio_name: profile.studio_name || "",
@@ -15,6 +15,7 @@ export default function SettingsPage() {
     default_gallery_commission: profile.default_gallery_commission,
   });
   const [saved, setSaved] = useState(false);
+  const [copied, setCopied] = useState(false);
   function set(k, v) { setForm({ ...form, [k]: v }); }
 
   async function save() {
@@ -22,6 +23,14 @@ export default function SettingsPage() {
     await refreshProfile();
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  const portalLink = typeof window !== "undefined" ? `${window.location.origin}/gallery/${session.user.id}` : "";
+
+  function copyLink() {
+    navigator.clipboard.writeText(portalLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   return (
@@ -36,7 +45,7 @@ export default function SettingsPage() {
           <Field label={s.language}><Select value={form.language} onChange={(e) => set("language", e.target.value)}><option value="en">English</option><option value="ar">العربية</option></Select></Field>
         </div>
       </Card>
-      <Card style={{ maxWidth: 520 }}>
+      <Card style={{ maxWidth: 520, marginBottom: 18 }}>
         <div style={{ fontWeight: 700, marginBottom: 12 }}>{s.defaults}</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 16px" }}>
           <Field label={s.defaultHourlyRate}><Input type="number" value={form.default_hourly_rate} onChange={(e) => set("default_hourly_rate", e.target.value)} /></Field>
@@ -45,6 +54,20 @@ export default function SettingsPage() {
         </div>
         <Btn onClick={save}>{s.save}</Btn>
         {saved && <span style={{ marginInlineStart: 12, fontSize: 13, color: "#5F8A5F" }}>{s.saved}</span>}
+      </Card>
+
+      <Card style={{ maxWidth: 520 }}>
+        <div style={{ fontWeight: 700, marginBottom: 8 }}>{lang === "ar" ? "بوابة العميل العامة" : "Public client portal"}</div>
+        <div style={{ fontSize: 13, color: "#9C9280", marginBottom: 14 }}>
+          {lang === "ar"
+            ? "شارك هذا الرابط مع عملائك ليتصفحوا أعمالك المتاحة وأسعارها وطرق الدفع."
+            : "Share this link with your clients so they can browse your available artworks, prices, and payment methods."}
+        </div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <Input value={portalLink} readOnly style={{ flex: "1 1 220px" }} />
+          <Btn variant="ghost" onClick={copyLink}>{copied ? (lang === "ar" ? "تم النسخ ✓" : "Copied ✓") : (lang === "ar" ? "نسخ الرابط" : "Copy link")}</Btn>
+          <a href={portalLink} target="_blank" rel="noreferrer"><Btn variant="ghost">{lang === "ar" ? "فتح" : "Open"}</Btn></a>
+        </div>
       </Card>
     </div>
   );
