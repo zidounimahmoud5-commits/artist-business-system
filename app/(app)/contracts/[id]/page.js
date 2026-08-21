@@ -79,6 +79,7 @@ export default function ContractDocPage() {
             <tbody>
               <tr><td style={{ padding: "5px 0", color: "#6B6155" }}>{c.price}</td><td style={{ padding: "5px 0", fontWeight: 600 }}>{money(contract.price, currency, lang)}</td></tr>
               <tr><td style={{ padding: "5px 0", color: "#6B6155" }}>{c.deposit}</td><td style={{ padding: "5px 0", fontWeight: 600, color: "#5F7A54" }}>{money(contract.deposit, currency, lang)}</td></tr>
+              <tr><td style={{ padding: "5px 0", color: "#6B6155" }}>{t.paymentMethod.label}</td><td style={{ padding: "5px 0" }}>{t.paymentMethod[contract.payment_method] || "—"}</td></tr>
               <tr><td style={{ padding: "5px 0", color: "#6B6155" }}>{c.remaining}</td><td style={{ padding: "5px 0", fontWeight: 700 }}>{money(remaining, currency, lang)}</td></tr>
             </tbody>
           </table>
