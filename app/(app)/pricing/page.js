@@ -178,7 +178,7 @@ export default function PricingPage() {
       </Card>
 
       <style>{`
-        @media (max-width: 640px) {
+        @media (max-width: 900px) {
           .pricing-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .pricing-card { padding: 14px !important; }
         }
