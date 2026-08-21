@@ -60,15 +60,3 @@ export default function SettingsPage() {
         <div style={{ fontWeight: 700, marginBottom: 8 }}>{lang === "ar" ? "بوابة العميل العامة" : "Public client portal"}</div>
         <div style={{ fontSize: 13, color: "#9C9280", marginBottom: 14 }}>
           {lang === "ar"
-            ? "شارك هذا الرابط مع عملائك ليتصفحوا أعمالك المتاحة وأسعارها وطرق الدفع."
-            : "Share this link with your clients so they can browse your available artworks, prices, and payment methods."}
-        </div>
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <Input value={portalLink} readOnly style={{ flex: "1 1 220px" }} />
-          <Btn variant="ghost" onClick={copyLink}>{copied ? (lang === "ar" ? "تم النسخ ✓" : "Copied ✓") : (lang === "ar" ? "نسخ الرابط" : "Copy link")}</Btn>
-          <a href={portalLink} target="_blank" rel="noreferrer"><Btn variant="ghost">{lang === "ar" ? "فتح" : "Open"}</Btn></a>
-        </div>
-      </Card>
-    </div>
-  );
-}
