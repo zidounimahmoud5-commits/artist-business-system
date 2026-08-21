@@ -32,19 +32,19 @@ function IconBadge({ icon: Icon, tone = "gold" }) {
 
 function FieldTile({ icon: Icon, label, value, onChange, unit }) {
   return (
-    <div style={{ textAlign: "center", padding: "10px 6px" }}>
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: 8 }}>
-        <Icon size={22} color={GOLD_DEEP} strokeWidth={1.75} />
+    <div style={{ padding: "6px 4px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <Icon size={16} color={GOLD_DEEP} strokeWidth={1.8} />
+        <span style={{ fontSize: 12, color: TEXT_SECONDARY, fontWeight: 600 }}>{label}</span>
       </div>
-      <div style={{ fontSize: 12.5, color: TEXT_SECONDARY, fontWeight: 600, marginBottom: 8 }}>{label}</div>
       <div style={{ display: "flex", alignItems: "center", border: `1px solid ${BORDER}`, borderRadius: 9, overflow: "hidden", background: "#FFFDF9" }}>
         <input
           type="number"
           value={value}
           onChange={onChange}
-          style={{ flex: 1, minWidth: 0, border: "none", outline: "none", background: "transparent", padding: "9px 8px", fontSize: 14.5, color: INK, textAlign: "center", fontFamily: "inherit" }}
+          style={{ flex: 1, minWidth: 0, border: "none", outline: "none", background: "transparent", padding: "8px 8px", fontSize: 14, color: INK, textAlign: "start", fontFamily: "inherit" }}
         />
-        <span style={{ fontSize: 11.5, color: TEXT_MUTED, padding: "0 10px", borderInlineStart: `1px solid ${BORDER}`, alignSelf: "stretch", display: "flex", alignItems: "center" }}>{unit}</span>
+        <span style={{ fontSize: 11, color: TEXT_MUTED, padding: "0 8px", borderInlineStart: `1px solid ${BORDER}`, alignSelf: "stretch", display: "flex", alignItems: "center" }}>{unit}</span>
       </div>
     </div>
   );
@@ -52,12 +52,12 @@ function FieldTile({ icon: Icon, label, value, onChange, unit }) {
 
 function ResultRow({ icon: Icon, label, value }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 2px", borderBottom: `1px solid #F2EBDA` }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "11px 2px", borderBottom: `1px solid #F2EBDA` }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <Icon size={17} color={GOLD_DEEP} strokeWidth={1.8} />
-        <span style={{ fontSize: 14, color: TEXT_SECONDARY }}>{label}</span>
+        <Icon size={16} color={GOLD_DEEP} strokeWidth={1.8} />
+        <span style={{ fontSize: 13.5, color: TEXT_SECONDARY }}>{label}</span>
       </div>
-      <span style={{ fontWeight: 700, color: GREEN, fontSize: 15 }}>{value}</span>
+      <span style={{ fontWeight: 700, color: GREEN, fontSize: 14.5 }}>{value}</span>
     </div>
   );
 }
@@ -97,35 +97,35 @@ export default function PricingPage() {
 
   return (
     <div>
-      <div style={{ textAlign: "center", marginBottom: 30 }}>
-        <h1 style={{ fontFamily: "var(--font-display)", fontSize: 30, fontWeight: 600, color: INK, margin: "0 0 10px", position: "relative", display: "inline-block", paddingBottom: 12 }}>
+      <div style={{ textAlign: "center", marginBottom: 24 }}>
+        <h1 style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 600, color: INK, margin: "0 0 8px", position: "relative", display: "inline-block", paddingBottom: 10 }}>
           {p.title}
-          <span style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: 60, height: 2.5, backgroundImage: `linear-gradient(to right, ${GOLD_DEEP}, ${GOLD})`, borderRadius: 2 }} />
+          <span style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: 54, height: 2.5, backgroundImage: `linear-gradient(to right, ${GOLD_DEEP}, ${GOLD})`, borderRadius: 2 }} />
         </h1>
-        <div style={{ fontSize: 14.5, color: TEXT_SECONDARY }}>{p.subtitle}</div>
+        <div style={{ fontSize: 13.5, color: TEXT_SECONDARY }}>{p.subtitle}</div>
       </div>
 
-      <Card style={{ marginBottom: 20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600, color: INK }}>{p.inputs}</div>
+      <Card className="pricing-card" style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 17, fontWeight: 600, color: INK }}>{p.inputs}</div>
           <IconBadge icon={Calculator} tone="gold" />
         </div>
-        <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "18px 10px" }}>
+        <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px 10px" }}>
           {FIELDS.map((f) => (
             <FieldTile key={f.key} icon={f.icon} label={p[f.key]} unit={f.unit} value={form[f.key]} onChange={(e) => set(f.key, e.target.value)} />
           ))}
         </div>
 
         <button onClick={() => setShowMore((s) => !s)} style={{
-          width: "100%", marginTop: 18, background: "#FBF7EF", border: `1px solid ${BORDER}`, borderRadius: 10,
-          padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", fontFamily: "inherit",
+          width: "100%", marginTop: 14, background: "#FBF7EF", border: `1px solid ${BORDER}`, borderRadius: 10,
+          padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", fontFamily: "inherit",
         }}>
-          <span style={{ fontSize: 13.5, color: TEXT_SECONDARY, fontWeight: 600 }}>{p.moreDetails}</span>
-          <ChevronDown size={18} color={TEXT_SECONDARY} style={{ transform: showMore ? "rotate(180deg)" : "none", transition: "transform 0.2s ease" }} />
+          <span style={{ fontSize: 13, color: TEXT_SECONDARY, fontWeight: 600 }}>{p.moreDetails}</span>
+          <ChevronDown size={17} color={TEXT_SECONDARY} style={{ transform: showMore ? "rotate(180deg)" : "none", transition: "transform 0.2s ease" }} />
         </button>
 
         {showMore && (
-          <div style={{ marginTop: 16, paddingTop: 4 }}>
+          <div style={{ marginTop: 14 }}>
             <Field label={p.galleryCommission}>
               <Input type="number" value={form.galleryCommission} onChange={(e) => set("galleryCommission", e.target.value)} />
             </Field>
@@ -133,9 +133,9 @@ export default function PricingPage() {
         )}
       </Card>
 
-      <Card style={{ marginBottom: 20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600, color: INK }}>{p.results}</div>
+      <Card className="pricing-card" style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 17, fontWeight: 600, color: INK }}>{p.results}</div>
           <IconBadge icon={BarChart3} tone="green" />
         </div>
 
@@ -145,43 +145,7 @@ export default function PricingPage() {
         <ResultRow icon={ShieldCheck} label={p.minPrice} value={money(minPrice, currency, lang)} />
         <ResultRow icon={TrendingUp} label={p.expectedProfit} value={money(expectedProfit, currency, lang)} />
 
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: GREEN_BG, borderRadius: 10, padding: "14px 16px", margin: "14px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: GREEN_BG, borderRadius: 10, padding: "12px 14px", margin: "12px 0" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <Percent size={17} color={GREEN} strokeWidth={2} />
-            <span style={{ fontSize: 14, fontWeight: 700, color: GREEN }}>{p.profitMargin}</span>
-          </div>
-          <span style={{ fontWeight: 700, color: GREEN, fontSize: 17 }}>{profitMarginPct.toFixed(1)}%</span>
-        </div>
-
-        <Btn
-          onClick={() => {
-            sessionStorage.setItem("abs_pricing_prefill", JSON.stringify({
-              material_cost: form.materialCost, labor_hours: form.laborHours, labor_rate: form.laborRate,
-              frame_cost: form.frameCost, packaging_cost: form.packagingCost, shipping_cost: form.shippingCost, other_costs: form.otherCosts,
-              suggested_price: +directPrice.toFixed(2), min_price: +minPrice.toFixed(2), gallery_price: +galleryPrice.toFixed(2),
-            }));
-            router.push("/artworks?prefill=1");
-          }}
-          style={{ width: "100%", padding: "13px 18px", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 14.5 }}
-        >
-          <Sparkles size={16} />
-          {p.useCalculator}
-        </Btn>
-      </Card>
-
-      <Card style={{ display: "flex", alignItems: "flex-start", gap: 14, background: AMBER_BG, border: "none" }}>
-        <Lightbulb size={20} color={GOLD_DEEP} strokeWidth={1.8} style={{ flexShrink: 0, marginTop: 2 }} />
-        <div>
-          <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: GOLD_DEEP, fontSize: 14.5, marginBottom: 4 }}>{p.tipTitle}</div>
-          <div style={{ fontSize: 13.5, color: TEXT_SECONDARY, lineHeight: 1.6 }}>{p.tip}</div>
-        </div>
-      </Card>
-
-      <style>{`
-        @media (max-width: 640px) {
-          .pricing-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-      `}</style>
-    </div>
-  );
-}
+            <Percent size={16} color={GREEN} strokeWidth={2} />
+            <span style={{ fontSize: 13.5, fontWeight: 700, color: GREEN }}>{p.profitMargin}</span>
