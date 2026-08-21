@@ -32,19 +32,19 @@ function IconBadge({ icon: Icon, tone = "gold" }) {
 
 function FieldTile({ icon: Icon, label, value, onChange, unit }) {
   return (
-    <div style={{ padding: "6px 4px" }}>
+    <div style={{ padding: "6px 4px", minWidth: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <Icon size={16} color={GOLD_DEEP} strokeWidth={1.8} />
         <span style={{ fontSize: 12, color: TEXT_SECONDARY, fontWeight: 600 }}>{label}</span>
       </div>
-      <div style={{ display: "flex", alignItems: "center", border: `1px solid ${BORDER}`, borderRadius: 9, overflow: "hidden", background: "#FFFDF9" }}>
+      <div style={{ display: "flex", alignItems: "center", border: `1px solid ${BORDER}`, borderRadius: 9, overflow: "hidden", background: "#FFFDF9", minWidth: 0 }}>
         <input
           type="number"
           value={value}
           onChange={onChange}
-          style={{ flex: 1, minWidth: 0, border: "none", outline: "none", background: "transparent", padding: "8px 8px", fontSize: 14, color: INK, textAlign: "start", fontFamily: "inherit" }}
+          style={{ flex: 1, minWidth: 0, width: "100%", border: "none", outline: "none", background: "transparent", padding: "8px 6px", fontSize: 13.5, color: INK, textAlign: "start", fontFamily: "inherit" }}
         />
-        <span style={{ fontSize: 11, color: TEXT_MUTED, padding: "0 8px", borderInlineStart: `1px solid ${BORDER}`, alignSelf: "stretch", display: "flex", alignItems: "center" }}>{unit}</span>
+        <span style={{ fontSize: 10.5, color: TEXT_MUTED, padding: "0 6px", borderInlineStart: `1px solid ${BORDER}`, alignSelf: "stretch", display: "flex", alignItems: "center", flexShrink: 0 }}>{unit}</span>
       </div>
     </div>
   );
@@ -110,7 +110,7 @@ export default function PricingPage() {
           <div style={{ fontFamily: "var(--font-display)", fontSize: 17, fontWeight: 600, color: INK }}>{p.inputs}</div>
           <IconBadge icon={Calculator} tone="gold" />
         </div>
-        <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px 10px" }}>
+        <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px 8px" }}>
           {FIELDS.map((f) => (
             <FieldTile key={f.key} icon={f.icon} label={p[f.key]} unit={f.unit} value={form[f.key]} onChange={(e) => set(f.key, e.target.value)} />
           ))}
@@ -178,9 +178,8 @@ export default function PricingPage() {
       </Card>
 
       <style>{`
-        @media (max-width: 900px) {
-          .pricing-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .pricing-card { padding: 14px !important; }
+        @media (min-width: 900px) {
+          .pricing-grid { grid-template-columns: repeat(4, 1fr) !important; }
         }
       `}</style>
     </div>
