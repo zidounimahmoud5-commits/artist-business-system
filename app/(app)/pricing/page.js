@@ -149,3 +149,40 @@ export default function PricingPage() {
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <Percent size={16} color={GREEN} strokeWidth={2} />
             <span style={{ fontSize: 13.5, fontWeight: 700, color: GREEN }}>{p.profitMargin}</span>
+          </div>
+          <span style={{ fontWeight: 700, color: GREEN, fontSize: 16 }}>{profitMarginPct.toFixed(1)}%</span>
+        </div>
+
+        <Btn
+          onClick={() => {
+            sessionStorage.setItem("abs_pricing_prefill", JSON.stringify({
+              material_cost: form.materialCost, labor_hours: form.laborHours, labor_rate: form.laborRate,
+              frame_cost: form.frameCost, packaging_cost: form.packagingCost, shipping_cost: form.shippingCost, other_costs: form.otherCosts,
+              suggested_price: +directPrice.toFixed(2), min_price: +minPrice.toFixed(2), gallery_price: +galleryPrice.toFixed(2),
+            }));
+            router.push("/artworks?prefill=1");
+          }}
+          style={{ width: "100%", padding: "12px 18px", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 14 }}
+        >
+          <Sparkles size={16} />
+          {p.useCalculator}
+        </Btn>
+      </Card>
+
+      <Card className="pricing-card" style={{ display: "flex", alignItems: "flex-start", gap: 12, background: AMBER_BG, border: "none" }}>
+        <Lightbulb size={19} color={GOLD_DEEP} strokeWidth={1.8} style={{ flexShrink: 0, marginTop: 2 }} />
+        <div>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: GOLD_DEEP, fontSize: 14, marginBottom: 3 }}>{p.tipTitle}</div>
+          <div style={{ fontSize: 13, color: TEXT_SECONDARY, lineHeight: 1.6 }}>{p.tip}</div>
+        </div>
+      </Card>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .pricing-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .pricing-card { padding: 14px !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
