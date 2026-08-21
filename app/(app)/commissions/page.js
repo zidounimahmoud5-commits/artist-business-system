@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useApp } from "../../../components/AppContext";
 import { supabase } from "../../../lib/supabaseClient";
 import { SectionTitle, Btn, Card, Field, Input, Select, TextArea, Modal, EmptyState, Badge } from "../../../components/ui";
-import { COMMISSION_STATUS_KEYS } from "../../../lib/i18n";
+import { COMMISSION_STATUS_KEYS, PAYMENT_METHOD_KEYS } from "../../../lib/i18n";
 import { money, todayISO, daysBetween } from "../../../lib/helpers";
 
 export default function CommissionsPage() {
@@ -34,7 +34,7 @@ export default function CommissionsPage() {
       {commissions.length === 0 ? <EmptyState text={c.empty} actionLabel={c.add} onAction={() => setFormModal({ mode: "new" })} /> : (
         <Card style={{ padding: 0, overflowX: "auto" }}>
           <table>
-            <thead><tr><th>{c.client}</th><th>{c.concept}</th><th>{c.price}</th><th>{c.remaining}</th><th>{c.deadline}</th><th>{c.status}</th><th></th><th></th></tr></thead>
+            <thead><tr><th>{c.client}</th><th>{c.concept}</th><th>{c.price}</th><th>{c.remaining}</th><th>{c.deadline}</th><th>{c.status}</th><th></th><th></th><th></th></tr></thead>
             <tbody>
               {commissions.map((m) => {
                 const remaining = Number(m.price || 0) - Number(m.deposit || 0);
@@ -51,6 +51,11 @@ export default function CommissionsPage() {
                     <td onClick={(e) => e.stopPropagation()}>
                       <Link href={`/contracts?commission=${m.id}`}>
                         <Btn variant="ghost" style={{ padding: "4px 10px", fontSize: 12 }}>{t.contracts.title}</Btn>
+                      </Link>
+                    </td>
+                    <td onClick={(e) => e.stopPropagation()}>
+                      <Link href={`/receipts/${m.id}`}>
+                        <Btn variant="ghost" style={{ padding: "4px 10px", fontSize: 12 }}>{c.receipt}</Btn>
                       </Link>
                     </td>
                     <td onClick={(e) => e.stopPropagation()}>
@@ -85,7 +90,7 @@ export default function CommissionsPage() {
 
 function CommissionForm({ t, clients, mode, initial, onClose, onSave }) {
   const c = t.commissions;
-  const [form, setForm] = useState(initial ? { client_id: initial.client_id, title: initial.title, concept: initial.concept, size: initial.size, medium: initial.medium, price: initial.price, deposit: initial.deposit, deadline: initial.deadline, status: initial.status, notes: initial.notes } : { client_id: clients[0]?.id || "", title: "", concept: "", size: "", medium: "", price: "", deposit: "", deadline: "", status: "inquiry", notes: "" });
+  const [form, setForm] = useState(initial ? { client_id: initial.client_id, title: initial.title, concept: initial.concept, size: initial.size, medium: initial.medium, price: initial.price, deposit: initial.deposit, deadline: initial.deadline, status: initial.status, notes: initial.notes, payment_method: initial.payment_method || "cash" } : { client_id: clients[0]?.id || "", title: "", concept: "", size: "", medium: "", price: "", deposit: "", deadline: "", status: "inquiry", notes: "", payment_method: "cash" });
   const [saving, setSaving] = useState(false);
   function set(k, v) { setForm({ ...form, [k]: v }); }
   return (
@@ -100,6 +105,7 @@ function CommissionForm({ t, clients, mode, initial, onClose, onSave }) {
         <Field label={c.deposit}><Input type="number" value={form.deposit} onChange={(e) => set("deposit", e.target.value)} /></Field>
         <Field label={c.deadline}><Input type="date" value={form.deadline || ""} onChange={(e) => set("deadline", e.target.value)} /></Field>
         <Field label={c.status}><Select value={form.status} onChange={(e) => set("status", e.target.value)}>{COMMISSION_STATUS_KEYS.map((k) => <option key={k} value={k}>{t.commissionStatus[k]}</option>)}</Select></Field>
+        <Field label={t.paymentMethod.label}><Select value={form.payment_method} onChange={(e) => set("payment_method", e.target.value)}>{PAYMENT_METHOD_KEYS.map((k) => <option key={k} value={k}>{t.paymentMethod[k]}</option>)}</Select></Field>
       </div>
       <Field label={c.notes}><TextArea value={form.notes} onChange={(e) => set("notes", e.target.value)} /></Field>
       <Btn disabled={saving} onClick={async () => { if (!form.title) return; setSaving(true); await onSave(form); setSaving(false); onClose(); }}>{c.save}</Btn>
