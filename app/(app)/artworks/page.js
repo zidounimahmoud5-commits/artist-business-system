@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useApp } from "../../../components/AppContext";
 import { supabase } from "../../../lib/supabaseClient";
 import { SectionTitle, Btn, Input, Select, TextArea, Field, Modal, Badge, EmptyState, Row } from "../../../components/ui";
-import { STATUS_KEYS, STATUS_COLORS, LOCATION_KEYS } from "../../../lib/i18n";
+import { STATUS_KEYS, STATUS_COLORS, LOCATION_KEYS, PAYMENT_METHOD_KEYS } from "../../../lib/i18n";
 import { money, calcArtworkCost, todayISO } from "../../../lib/helpers";
 
 export default function ArtworksPage() {
@@ -132,12 +132,17 @@ export default function ArtworksPage() {
         <SaleModal t={t} lang={lang} currency={currency} artwork={saleModal} clients={clients}
           onClose={() => setSaleModal(null)}
           onConfirm={async (form) => {
+            const uid = session.user.id;
             const { error } = await supabase.rpc("record_sale", {
               p_artwork_id: saleModal.id, p_client_id: form.clientId, p_date: form.date,
               p_price: Number(form.price), p_discount: Number(form.discount || 0), p_shipping: Number(form.shipping || 0),
               p_payment_fee: Number(form.paymentFee || 0), p_gallery_commission_pct: Number(form.galleryCommission || 0),
             });
             if (error) { alert(error.message); return; }
+            const { data: latestSale } = await supabase.from("sales").select("id").eq("artwork_id", saleModal.id).eq("user_id", uid).order("created_at", { ascending: false }).limit(1).single();
+            if (latestSale) {
+              await supabase.from("sales").update({ payment_method: form.paymentMethod }).eq("id", latestSale.id).eq("user_id", uid);
+            }
             setSaleModal(null); await loadAll();
           }}
         />
@@ -262,7 +267,7 @@ function ArtworkDetail({ t, lang, currency, artwork: a, clientMap, onClose, onEd
 
 function SaleModal({ t, lang, currency, artwork, clients, onClose, onConfirm }) {
   const d = t.artworks.detail;
-  const [form, setForm] = useState({ clientId: clients[0]?.id || "", price: artwork.suggested_price || "", date: todayISO(), discount: 0, shipping: 0, paymentFee: 0, galleryCommission: 0 });
+  const [form, setForm] = useState({ clientId: clients[0]?.id || "", price: artwork.suggested_price || "", date: todayISO(), discount: 0, shipping: 0, paymentFee: 0, galleryCommission: 0, paymentMethod: "cash" });
   const [saving, setSaving] = useState(false);
   const net = Number(form.price || 0) - Number(form.discount || 0) - Number(form.shipping || 0) - Number(form.paymentFee || 0) - (Number(form.price || 0) * Number(form.galleryCommission || 0) / 100);
   const cost = calcArtworkCost(artwork);
@@ -279,6 +284,11 @@ function SaleModal({ t, lang, currency, artwork, clients, onClose, onConfirm }) 
             <Field label={d.paymentFee}><Input type="number" value={form.paymentFee} onChange={(e) => setForm({ ...form, paymentFee: e.target.value })} /></Field>
             <Field label={d.galleryCommission}><Input type="number" value={form.galleryCommission} onChange={(e) => setForm({ ...form, galleryCommission: e.target.value })} /></Field>
           </div>
+          <Field label={t.paymentMethod.label}>
+            <Select value={form.paymentMethod} onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}>
+              {PAYMENT_METHOD_KEYS.map((k) => <option key={k} value={k}>{t.paymentMethod[k]}</option>)}
+            </Select>
+          </Field>
           <div style={{ background: "#F5F1E8", borderRadius: 8, padding: "10px 14px", fontSize: 14, marginBottom: 14 }}>
             <Row label={d.netRevenue} value={money(net, currency, lang)} />
             <Row label={d.actualProfit} value={money(net - cost, currency, lang)} />
