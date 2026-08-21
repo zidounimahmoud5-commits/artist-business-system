@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { CreditCard, Wallet, Smartphone, Landmark } from "lucide-react";
+import { Smartphone } from "lucide-react";
+import { FaCcVisa, FaCcMastercard, FaCcPaypal } from "react-icons/fa";
 import { supabase } from "../../../lib/supabaseClient";
 import { Card } from "../../../components/ui";
 import { money } from "../../../lib/helpers";
@@ -14,12 +15,24 @@ const TEXT_SECONDARY = "#6B6155";
 const TEXT_MUTED = "#9C9280";
 const BORDER = "#EDE4D0";
 
-const PAYMENT_ICONS = { visa: CreditCard, mastercard: CreditCard, paypal: Wallet, baridimob: Smartphone, cash: Landmark };
-
 const PORTAL_TEXT = {
-  ar: { gallery: "المعرض الفني", subtitle: "تصفح الأعمال المتاحة حالياً", empty: "لا توجد أعمال متاحة للبيع حالياً. تواصلوا معنا لمزيد من المعلومات.", price: "السعر", paymentTitle: "طرق الدفع المتاحة", notFound: "لم يتم العثور على هذا المعرض." },
+  ar: { gallery: "المعرض الفني", subtitle: "تصفح الأعمال المتاحة حالياً", empty: "لا توجد أعمال متاحة للبيع حالياً. تواصلوا معنا لمزيد من المعلومات.", price: "السعر", paymentTitle: "طرق الدفع المقبولة", notFound: "لم يتم العثور على هذا المعرض." },
   en: { gallery: "Art Gallery", subtitle: "Browse currently available artworks", empty: "No artworks are available for sale right now. Get in touch for more information.", price: "Price", paymentTitle: "Accepted payment methods", notFound: "This gallery could not be found." },
 };
+
+function PaymentBadge({ children, label }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 64 }}>
+      <div style={{
+        width: 54, height: 38, borderRadius: 8, background: "#FFFDF9", border: `1px solid ${BORDER}`,
+        display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(140,101,48,0.08)",
+      }}>
+        {children}
+      </div>
+      <span style={{ fontSize: 11, color: TEXT_SECONDARY }}>{label}</span>
+    </div>
+  );
+}
 
 export default function PublicGalleryPage() {
   const { artistId } = useParams();
@@ -115,19 +128,20 @@ export default function PublicGalleryPage() {
 
         {profile && (
           <Card style={{ maxWidth: 480, margin: "0 auto", textAlign: "center" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 15, marginBottom: 14, color: INK }}>{p.paymentTitle}</div>
-            <div style={{ display: "flex", justifyContent: "center", gap: 18, flexWrap: "wrap" }}>
-              {PAYMENT_METHOD_KEYS.filter((k) => k !== "cash").map((k) => {
-                const Icon = PAYMENT_ICONS[k];
-                return (
-                  <div key={k} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 64 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(164,124,62,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <Icon size={18} color={GOLD_DEEP} strokeWidth={1.8} />
-                    </div>
-                    <span style={{ fontSize: 11.5, color: TEXT_SECONDARY }}>{t.paymentMethod[k]}</span>
-                  </div>
-                );
-              })}
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 15, marginBottom: 16, color: INK }}>{p.paymentTitle}</div>
+            <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
+              <PaymentBadge label={t.paymentMethod.visa}>
+                <FaCcVisa size={30} color="#1A1F71" />
+              </PaymentBadge>
+              <PaymentBadge label={t.paymentMethod.mastercard}>
+                <FaCcMastercard size={30} color="#EB001B" />
+              </PaymentBadge>
+              <PaymentBadge label={t.paymentMethod.paypal}>
+                <FaCcPaypal size={30} color="#003087" />
+              </PaymentBadge>
+              <PaymentBadge label={t.paymentMethod.baridimob}>
+                <Smartphone size={20} color="#2E7D32" strokeWidth={1.8} />
+              </PaymentBadge>
             </div>
           </Card>
         )}
