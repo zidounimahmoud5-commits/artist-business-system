@@ -16,8 +16,24 @@ const TEXT_MUTED = "#9C9280";
 const BORDER = "#EDE4D0";
 
 const PORTAL_TEXT = {
-  ar: { gallery: "المعرض الفني", subtitle: "تصفح الأعمال المتاحة حالياً", empty: "لا توجد أعمال متاحة للبيع حالياً. تواصلوا معنا لمزيد من المعلومات.", price: "السعر", paymentTitle: "طرق الدفع المقبولة (دوس للتفاصيل)", notFound: "لم يتم العثور على هذا المعرض.", noPaymentDetails: "لم يضف الفنان تفاصيل هذه الطريقة بعد. تواصلوا معه مباشرة." },
-  en: { gallery: "Art Gallery", subtitle: "Browse currently available artworks", empty: "No artworks are available for sale right now. Get in touch for more information.", price: "Price", paymentTitle: "Accepted payment methods (tap for details)", notFound: "This gallery could not be found.", noPaymentDetails: "The artist hasn't added details for this method yet. Please contact them directly." },
+  ar: {
+    gallery: "المعرض الفني", subtitle: "تصفح الأعمال المتاحة حالياً", empty: "لا توجد أعمال متاحة للبيع حالياً. تواصلوا معنا لمزيد من المعلومات.", price: "السعر",
+    paymentTitle: "طرق الدفع المقبولة (دوس للتفاصيل)", notFound: "لم يتم العثور على هذا المعرض.",
+    payTo: "الدفع إلى", name: "الاسم الكامل", phone: "رقم الهاتف", contactNote: "ملاحظة (اختياري)", contactNotePlaceholder: "مثلا: العمل الفني اللي معجبني، أو أي تفاصيل...",
+    transferRef: "رقم/مرجع التحويل", transferRefPlaceholder: "اكتب مرجع العملية بعد التحويل",
+    submitContact: "إرسال طلب التواصل", submitTransfer: "تأكيد التحويل", sending: "جارِ الإرسال…",
+    successContact: "تم إرسال طلبك، سيتواصل معك الفنان قريباً.", successTransfer: "تم إرسال تأكيد التحويل، سيتم مراجعته قريباً.",
+    close: "إغلاق", requiredFields: "الاسم والهاتف مطلوبان.",
+  },
+  en: {
+    gallery: "Art Gallery", subtitle: "Browse currently available artworks", empty: "No artworks are available for sale right now. Get in touch for more information.", price: "Price",
+    paymentTitle: "Accepted payment methods (tap for details)", notFound: "This gallery could not be found.",
+    payTo: "Pay to", name: "Full name", phone: "Phone number", contactNote: "Note (optional)", contactNotePlaceholder: "e.g. which artwork you're interested in, or any details...",
+    transferRef: "Transfer reference number", transferRefPlaceholder: "Enter the transaction reference after transferring",
+    submitContact: "Send contact request", submitTransfer: "Confirm transfer", sending: "Sending…",
+    successContact: "Your request has been sent, the artist will contact you soon.", successTransfer: "Your transfer confirmation has been sent for review.",
+    close: "Close", requiredFields: "Name and phone are required.",
+  },
 };
 
 function PaymentBadge({ children, label, onClick }) {
@@ -152,11 +168,12 @@ export default function PublicGalleryPage() {
         )}
 
         {paymentModal && (
-          <Modal title={t.paymentMethod[paymentModal]} onClose={() => setPaymentModal(null)}>
-            <div style={{ fontSize: 14.5, color: INK, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
-              {profile?.payment_info?.[paymentModal] || p.noPaymentDetails}
-            </div>
-          </Modal>
+          <PaymentRequestModal
+            method={paymentModal} methodLabel={t.paymentMethod[paymentModal]}
+            payToInfo={profile?.payment_info?.[paymentModal]}
+            artistId={artistId} lang={lang} p={p}
+            onClose={() => setPaymentModal(null)}
+          />
         )}
       </div>
 
@@ -166,5 +183,84 @@ export default function PublicGalleryPage() {
         body { margin: 0; }
       `}</style>
     </div>
+  );
+}
+
+function PaymentRequestModal({ method, methodLabel, payToInfo, artistId, lang, p, onClose }) {
+  const isTransfer = method === "baridimob" || method === "paypal";
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [note, setNote] = useState("");
+  const [sending, setSending] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState("");
+
+  async function submit() {
+    if (!name.trim() || !phone.trim()) { setError(p.requiredFields); return; }
+    setError("");
+    setSending(true);
+    const { error: err } = await supabase.from("portal_requests").insert({
+      user_id: artistId, method, client_name: name.trim(), client_phone: phone.trim(), message: note.trim() || null,
+    });
+    setSending(false);
+    if (err) { setError(err.message); return; }
+    setDone(true);
+  }
+
+  return (
+    <Modal title={methodLabel} onClose={onClose}>
+      {done ? (
+        <div style={{ textAlign: "center", padding: "10px 0" }}>
+          <div style={{ fontSize: 14.5, color: INK, marginBottom: 18 }}>
+            {isTransfer ? p.successTransfer : p.successContact}
+          </div>
+          <button onClick={onClose} style={{
+            padding: "9px 20px", borderRadius: 8, border: `1px solid ${BORDER}`, background: "#FFFDF9",
+            fontSize: 13.5, fontWeight: 600, cursor: "pointer", color: INK,
+          }}>{p.close}</button>
+        </div>
+      ) : (
+        <>
+          {isTransfer && payToInfo && (
+            <div style={{ background: "rgba(164,124,62,0.1)", borderRadius: 10, padding: "12px 14px", marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: GOLD_DEEP, marginBottom: 4 }}>{p.payTo}</div>
+              <div style={{ fontSize: 14, color: INK, whiteSpace: "pre-wrap" }}>{payToInfo}</div>
+            </div>
+          )}
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: "block", fontSize: 12.5, color: TEXT_SECONDARY, marginBottom: 5, fontWeight: 600 }}>{p.name}</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} style={{
+              width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${BORDER}`, background: "#FFFDF9",
+              fontSize: 14.5, color: INK, fontFamily: "inherit", boxSizing: "border-box",
+            }} />
+          </div>
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: "block", fontSize: 12.5, color: TEXT_SECONDARY, marginBottom: 5, fontWeight: 600 }}>{p.phone}</label>
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" style={{
+              width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${BORDER}`, background: "#FFFDF9",
+              fontSize: 14.5, color: INK, fontFamily: "inherit", boxSizing: "border-box",
+            }} />
+          </div>
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: "block", fontSize: 12.5, color: TEXT_SECONDARY, marginBottom: 5, fontWeight: 600 }}>
+              {isTransfer ? p.transferRef : p.contactNote}
+            </label>
+            <textarea value={note} onChange={(e) => setNote(e.target.value)}
+              placeholder={isTransfer ? p.transferRefPlaceholder : p.contactNotePlaceholder}
+              style={{
+                width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${BORDER}`, background: "#FFFDF9",
+                fontSize: 14.5, color: INK, fontFamily: "inherit", boxSizing: "border-box", minHeight: 70, resize: "vertical",
+              }} />
+          </div>
+          {error && <div style={{ color: "#9A4A3E", fontSize: 13, marginBottom: 12 }}>{error}</div>}
+          <button onClick={submit} disabled={sending} style={{
+            width: "100%", padding: "11px 18px", borderRadius: 8, border: "none", background: GOLD,
+            color: "#FFFDF9", fontSize: 14.5, fontWeight: 700, cursor: sending ? "default" : "pointer", opacity: sending ? 0.7 : 1,
+          }}>
+            {sending ? p.sending : (isTransfer ? p.submitTransfer : p.submitContact)}
+          </button>
+        </>
+      )}
+    </Modal>
   );
 }
