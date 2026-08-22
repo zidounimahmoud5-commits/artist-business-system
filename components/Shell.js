@@ -28,7 +28,6 @@ export default function Shell({ children }) {
       "--font-body": lang === "ar" ? "'IBM Plex Sans Arabic', sans-serif" : "'Inter', sans-serif",
       fontFamily: "var(--font-body)", minHeight: "100vh", color: "#241F1A", position: "relative",
     }}>
-      {/* Artistic background layer (fixed, behind everything) */}
       <div aria-hidden="true" style={{
         position: "fixed", inset: 0, zIndex: -2,
         background: `
@@ -40,7 +39,6 @@ export default function Shell({ children }) {
           linear-gradient(160deg, #FBF3EC 0%, #F6EFE4 35%, #EFF1EA 65%, #F8EFE9 100%)
         `,
       }} />
-      {/* Subtle gold vein texture */}
       <div aria-hidden="true" style={{
         position: "fixed", inset: 0, zIndex: -1,
         opacity: 0.5,
@@ -67,6 +65,14 @@ export default function Shell({ children }) {
         </div>
       </div>
 
+      <div className="abs-mobilenav" style={{ display: "none" }}>
+        {MOBILE_NAV.map(([href, key]) => (
+          <Link key={href} href={href} style={{ color: pathname === href ? TEXT_ON_DARK : TEXT_ON_DARK_MUTED, fontWeight: pathname === href ? 700 : 400, fontSize: 11.5, textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 6px" }}>
+            {t.nav[key]}
+          </Link>
+        ))}
+      </div>
+
       <div style={{ display: "flex", minHeight: "100vh" }}>
         <div className="abs-sidebar" style={{ width: 220, background: INK_DARK, color: TEXT_ON_DARK, padding: "24px 16px", flexShrink: 0 }}>
           <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 19, marginBottom: 4, lineHeight: 1.25 }}>
@@ -90,14 +96,6 @@ export default function Shell({ children }) {
         </div>
       </div>
 
-      <div className="abs-bottomnav" style={{ display: "none" }}>
-        {MOBILE_NAV.map(([href, key]) => (
-          <Link key={href} href={href} style={{ color: pathname === href ? TEXT_ON_DARK : TEXT_ON_DARK_MUTED, fontWeight: pathname === href ? 700 : 400, fontSize: 11.5, textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 6px" }}>
-            {t.nav[key]}
-          </Link>
-        ))}
-      </div>
-
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
         * { box-sizing: border-box; }
@@ -114,8 +112,8 @@ export default function Shell({ children }) {
         @media (max-width: 860px) {
           .abs-sidebar { display: none; }
           .abs-topbar { display: flex !important; justify-content: space-between; align-items: center; background: ${INK_DARK}; padding: 14px 16px; position: sticky; top: 0; z-index: 30; }
-          .abs-main { padding: 18px 16px 90px !important; }
-          .abs-bottomnav { display: flex !important; position: fixed; bottom: 0; inset-inline: 0; background: ${INK_DARK}; z-index: 40; justify-content: space-around; padding: 8px 4px; }
+          .abs-mobilenav { display: flex !important; background: ${INK_DARK}; position: sticky; top: 0; z-index: 29; justify-content: space-around; padding: 10px 4px; border-top: 1px solid ${BORDER_ON_DARK}; }
+          .abs-main { padding: 18px 16px 30px !important; }
         }
       `}</style>
     </div>
