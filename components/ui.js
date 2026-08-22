@@ -3,17 +3,17 @@ import React from "react";
 
 const INK = "#241F1A";
 const INK_DARK = "#1E1A16";
-const GOLD = "#A47C3E";
-const GOLD_DEEP = "#8C6530";
+const GOLD = "#4A7C59";
+const GOLD_DEEP = "#3D6B4A";
 const SURFACE = "rgba(255,253,249,0.94)";
 const SURFACE_ALT = "rgba(251,247,239,0.96)";
 const SURFACE_SOLID = "#FFFDF9";
-const BORDER = "#EDE4D0";
-const TEXT_MUTED = "#9C9280";
-const TEXT_SECONDARY = "#6B6155";
+const BORDER = "#E3E8DE";
+const TEXT_MUTED = "#8B958A";
+const TEXT_SECONDARY = "#5A6459";
 const DANGER = "#8F4436";
 const DANGER_BORDER = "#E5CFC5";
-const CARD_SHADOW = "0 4px 22px rgba(140,101,48,0.08)";
+const CARD_SHADOW = "0 4px 22px rgba(61,107,74,0.08)";
 
 export function Badge({ label, color }) {
   return (
