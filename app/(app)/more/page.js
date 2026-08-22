@@ -10,6 +10,7 @@ const ITEMS = [
   ["/exhibitions", "exhibitions"],
   ["/expenses", "expenses"],
   ["/contracts", "contracts"],
+  ["/portal-requests", "portalRequests"],
   ["/settings", "settings"],
 ];
 
