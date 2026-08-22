@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { Smartphone } from "lucide-react";
 import { FaCcVisa, FaCcMastercard, FaCcPaypal } from "react-icons/fa";
 import { supabase } from "../../../lib/supabaseClient";
-import { Card } from "../../../components/ui";
+import { Card, Modal } from "../../../components/ui";
 import { money } from "../../../lib/helpers";
 import { DICT, PAYMENT_METHOD_KEYS } from "../../../lib/i18n";
 
@@ -16,21 +16,25 @@ const TEXT_MUTED = "#9C9280";
 const BORDER = "#EDE4D0";
 
 const PORTAL_TEXT = {
-  ar: { gallery: "المعرض الفني", subtitle: "تصفح الأعمال المتاحة حالياً", empty: "لا توجد أعمال متاحة للبيع حالياً. تواصلوا معنا لمزيد من المعلومات.", price: "السعر", paymentTitle: "طرق الدفع المقبولة", notFound: "لم يتم العثور على هذا المعرض." },
-  en: { gallery: "Art Gallery", subtitle: "Browse currently available artworks", empty: "No artworks are available for sale right now. Get in touch for more information.", price: "Price", paymentTitle: "Accepted payment methods", notFound: "This gallery could not be found." },
+  ar: { gallery: "المعرض الفني", subtitle: "تصفح الأعمال المتاحة حالياً", empty: "لا توجد أعمال متاحة للبيع حالياً. تواصلوا معنا لمزيد من المعلومات.", price: "السعر", paymentTitle: "طرق الدفع المقبولة (دوس للتفاصيل)", notFound: "لم يتم العثور على هذا المعرض.", noPaymentDetails: "لم يضف الفنان تفاصيل هذه الطريقة بعد. تواصلوا معه مباشرة." },
+  en: { gallery: "Art Gallery", subtitle: "Browse currently available artworks", empty: "No artworks are available for sale right now. Get in touch for more information.", price: "Price", paymentTitle: "Accepted payment methods (tap for details)", notFound: "This gallery could not be found.", noPaymentDetails: "The artist hasn't added details for this method yet. Please contact them directly." },
 };
 
-function PaymentBadge({ children, label }) {
+function PaymentBadge({ children, label, onClick }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 64 }}>
+    <button onClick={onClick} style={{
+      display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 64,
+      background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "inherit",
+    }}>
       <div style={{
         width: 54, height: 38, borderRadius: 8, background: "#FFFDF9", border: `1px solid ${BORDER}`,
         display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(140,101,48,0.08)",
+        transition: "transform 0.15s ease",
       }}>
         {children}
       </div>
       <span style={{ fontSize: 11, color: TEXT_SECONDARY }}>{label}</span>
-    </div>
+    </button>
   );
 }
 
@@ -40,6 +44,7 @@ export default function PublicGalleryPage() {
   const [artworks, setArtworks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lang, setLang] = useState("ar");
+  const [paymentModal, setPaymentModal] = useState(null);
 
   useEffect(() => {
     async function load() {
@@ -130,20 +135,28 @@ export default function PublicGalleryPage() {
           <Card style={{ maxWidth: 480, margin: "0 auto", textAlign: "center" }}>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 15, marginBottom: 16, color: INK }}>{p.paymentTitle}</div>
             <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
-              <PaymentBadge label={t.paymentMethod.visa}>
+              <PaymentBadge label={t.paymentMethod.visa} onClick={() => setPaymentModal("visa")}>
                 <FaCcVisa size={30} color="#1A1F71" />
               </PaymentBadge>
-              <PaymentBadge label={t.paymentMethod.mastercard}>
+              <PaymentBadge label={t.paymentMethod.mastercard} onClick={() => setPaymentModal("mastercard")}>
                 <FaCcMastercard size={30} color="#EB001B" />
               </PaymentBadge>
-              <PaymentBadge label={t.paymentMethod.paypal}>
+              <PaymentBadge label={t.paymentMethod.paypal} onClick={() => setPaymentModal("paypal")}>
                 <FaCcPaypal size={30} color="#003087" />
               </PaymentBadge>
-              <PaymentBadge label={t.paymentMethod.baridimob}>
+              <PaymentBadge label={t.paymentMethod.baridimob} onClick={() => setPaymentModal("baridimob")}>
                 <Smartphone size={20} color="#2E7D32" strokeWidth={1.8} />
               </PaymentBadge>
             </div>
           </Card>
+        )}
+
+        {paymentModal && (
+          <Modal title={t.paymentMethod[paymentModal]} onClose={() => setPaymentModal(null)}>
+            <div style={{ fontSize: 14.5, color: INK, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
+              {profile?.payment_info?.[paymentModal] || p.noPaymentDetails}
+            </div>
+          </Modal>
         )}
       </div>
 
