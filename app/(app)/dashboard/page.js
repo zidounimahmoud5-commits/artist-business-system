@@ -57,7 +57,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <SectionTitle right={<Btn onClick={() => router.push("/artworks?new=1")}>{t.dashboard.quickAdd}</Btn>}>{t.dashboard.overview}</SectionTitle>
+      <SectionTitle>{t.dashboard.overview}</SectionTitle>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 26 }}>
         <StatTile label={t.dashboard.total} value={artworks.length} />
         {STATUS_KEYS.map((k) => byStatus[k] > 0 && <StatTile key={k} label={t.status[k]} value={byStatus[k]} />)}
