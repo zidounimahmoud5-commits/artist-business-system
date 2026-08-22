@@ -57,7 +57,10 @@ export default function ArtworksPage() {
 
   return (
     <div>
-      <SectionTitle right={<Btn onClick={() => setFormModal({ mode: "new" })}>{t.artworks.add}</Btn>}>{t.artworks.title}</SectionTitle>
+      <SectionTitle>{t.artworks.title}</SectionTitle>
+
+      {artworks.length === 0 ? (
+        <EmptyState text={t.artworks.empty} actionLabel={t.artworks.add} onAction={() => setFormModal({ mode: "new" })} />
 
       {artworks.length === 0 ? (
         <EmptyState text={t.artworks.empty} actionLabel={t.artworks.emptyAdd} onAction={() => setFormModal({ mode: "new" })} />
