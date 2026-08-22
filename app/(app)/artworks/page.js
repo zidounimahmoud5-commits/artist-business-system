@@ -14,9 +14,9 @@ export default function ArtworksPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const [formModal, setFormModal] = useState(null); // { mode, artwork }
-  const [detail, setDetail] = useState(null); // artwork
-  const [saleModal, setSaleModal] = useState(null); // artwork
+  const [formModal, setFormModal] = useState(null);
+  const [detail, setDetail] = useState(null);
+  const [saleModal, setSaleModal] = useState(null);
 
   async function loadAll() {
     const uid = session.user.id;
@@ -61,9 +61,6 @@ export default function ArtworksPage() {
 
       {artworks.length === 0 ? (
         <EmptyState text={t.artworks.empty} actionLabel={t.artworks.add} onAction={() => setFormModal({ mode: "new" })} />
-
-      {artworks.length === 0 ? (
-        <EmptyState text={t.artworks.empty} actionLabel={t.artworks.emptyAdd} onAction={() => setFormModal({ mode: "new" })} />
       ) : (
         <>
           <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
