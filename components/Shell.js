@@ -13,7 +13,8 @@ const BORDER_ON_DARK = "#3A342B";
 const NAV = [
   ["/dashboard", "dashboard"], ["/artworks", "artworks"], ["/pricing", "pricing"],
   ["/commissions", "commissions"], ["/clients", "clients"], ["/exhibitions", "exhibitions"],
-  ["/sales", "sales"], ["/expenses", "expenses"], ["/contracts", "contracts"], ["/settings", "settings"],
+  ["/sales", "sales"], ["/expenses", "expenses"], ["/contracts", "contracts"],
+  ["/portal-requests", "portalRequests"], ["/settings", "settings"],
 ];
 const MOBILE_NAV = [["/dashboard", "dashboard"], ["/artworks", "artworks"], ["/sales", "sales"], ["/clients", "clients"], ["/more", "more"]];
 
