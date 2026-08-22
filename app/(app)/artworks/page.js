@@ -92,7 +92,7 @@ export default function ArtworksPage() {
       )}
 
       {formModal && (
-        <ArtworkForm t={t} lang={lang} currency={currency} defaults={profile} mode={formModal.mode} initial={formModal.artwork}
+        <ArtworkForm t={t} lang={lang} currency={currency} defaults={profile} mode={formModal.mode} initial={formModal.artwork} uid={session.user.id}
           onClose={() => setFormModal(null)}
           onSave={async (form) => {
             const uid = session.user.id;
@@ -151,7 +151,7 @@ export default function ArtworksPage() {
   );
 }
 
-function ArtworkForm({ t, lang, currency, defaults, mode, initial, onClose, onSave }) {
+function ArtworkForm({ t, lang, currency, defaults, mode, initial, uid, onClose, onSave }) {
   const f = t.artworks.form;
   const base = {
     title: "", medium: "", year: new Date().getFullYear(), width: "", height: "", unit: "cm",
@@ -164,6 +164,20 @@ function ArtworkForm({ t, lang, currency, defaults, mode, initial, onClose, onSa
   const [saving, setSaving] = useState(false);
   function set(k, v) { setForm({ ...form, [k]: v }); }
   const totalCost = calcArtworkCost(form);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFileUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    const path = `${uid}/${Date.now()}_${file.name}`;
+    const { error } = await supabase.storage.from("artwork-images").upload(path, file);
+    if (error) { alert(error.message); setUploading(false); return; }
+    const { data } = supabase.storage.from("artwork-images").getPublicUrl(path);
+    set("image", data.publicUrl);
+    setUploading(false);
+    e.target.value = "";
+  }
 
   async function submit() {
     if (!form.title || saving) return;
@@ -185,6 +199,30 @@ function ArtworkForm({ t, lang, currency, defaults, mode, initial, onClose, onSa
         <Field label={f.height}><Input type="number" value={form.height} onChange={(e) => set("height", e.target.value)} /></Field>
       </div>
       <Field label={f.imageUrl}><Input value={form.image} onChange={(e) => set("image", e.target.value)} placeholder="https://…" /></Field>
+
+      <div style={{ display: "flex", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
+        <label style={{
+          display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 8,
+          border: "1px solid #EDE4D0", background: "#FFFDF9", fontSize: 13.5, fontWeight: 600, color: "#241F1A",
+          cursor: uploading ? "default" : "pointer", opacity: uploading ? 0.6 : 1,
+        }}>
+          {uploading ? (lang === "ar" ? "جارِ الرفع…" : "Uploading…") : (lang === "ar" ? "رفع صورة من الجهاز" : "Upload from device")}
+          <input type="file" accept="image/*" onChange={handleFileUpload} disabled={uploading} style={{ display: "none" }} />
+        </label>
+        <label style={{
+          display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 8,
+          border: "1px solid #EDE4D0", background: "#FFFDF9", fontSize: 13.5, fontWeight: 600, color: "#241F1A",
+          cursor: uploading ? "default" : "pointer", opacity: uploading ? 0.6 : 1,
+        }}>
+          {lang === "ar" ? "تصوير العمل بالكاميرا" : "Take a photo"}
+          <input type="file" accept="image/*" capture="environment" onChange={handleFileUpload} disabled={uploading} style={{ display: "none" }} />
+        </label>
+      </div>
+      {form.image && (
+        <div style={{ marginBottom: 16 }}>
+          <img src={form.image} alt="" style={{ width: 90, height: 90, borderRadius: 10, objectFit: "cover", border: "1px solid #EDE4D0" }} />
+        </div>
+      )}
 
       <div style={{ fontSize: 12.5, fontWeight: 700, color: "#B08D57", margin: "16px 0 8px", textTransform: "uppercase" }}>{f.section2}</div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0 16px" }}>
