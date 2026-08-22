@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import { useApp } from "../../../components/AppContext";
 import { supabase } from "../../../lib/supabaseClient";
-import { SectionTitle, Card, Field, Input, Select, Btn } from "../../../components/ui";
-import { CURRENCIES } from "../../../lib/i18n";
+import { SectionTitle, Card, Field, Input, Select, TextArea, Btn } from "../../../components/ui";
+import { CURRENCIES, PAYMENT_METHOD_KEYS } from "../../../lib/i18n";
 
 export default function SettingsPage() {
   const { t, lang, profile, refreshProfile, session } = useApp();
@@ -14,12 +14,14 @@ export default function SettingsPage() {
     default_hourly_rate: profile.default_hourly_rate, default_margin: profile.default_margin,
     default_gallery_commission: profile.default_gallery_commission,
   });
+  const [paymentInfo, setPaymentInfo] = useState(profile.payment_info || {});
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
   function set(k, v) { setForm({ ...form, [k]: v }); }
+  function setPayment(k, v) { setPaymentInfo({ ...paymentInfo, [k]: v }); }
 
   async function save() {
-    await supabase.from("profiles").update(form).eq("id", session.user.id);
+    await supabase.from("profiles").update({ ...form, payment_info: paymentInfo }).eq("id", session.user.id);
     await refreshProfile();
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -32,6 +34,13 @@ export default function SettingsPage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
+
+  const PAYMENT_PLACEHOLDERS = {
+    visa: lang === "ar" ? "مثال: تواصلوا معنا لترتيب الدفع بالبطاقة، أو رابط دفع" : "e.g. Contact us to arrange card payment, or a payment link",
+    mastercard: lang === "ar" ? "مثال: تواصلوا معنا لترتيب الدفع بالبطاقة، أو رابط دفع" : "e.g. Contact us to arrange card payment, or a payment link",
+    paypal: lang === "ar" ? "البريد الإلكتروني أو رابط PayPal.me" : "Your email or PayPal.me link",
+    baridimob: lang === "ar" ? "رقم الهاتف المرتبط بـ BaridiMob" : "Phone number linked to BaridiMob",
+  };
 
   return (
     <div>
@@ -52,6 +61,23 @@ export default function SettingsPage() {
           <Field label={s.defaultMargin}><Input type="number" value={form.default_margin} onChange={(e) => set("default_margin", e.target.value)} /></Field>
           <Field label={s.defaultGalleryCommission}><Input type="number" value={form.default_gallery_commission} onChange={(e) => set("default_gallery_commission", e.target.value)} /></Field>
         </div>
+      </Card>
+
+      <Card style={{ maxWidth: 520, marginBottom: 18 }}>
+        <div style={{ fontWeight: 700, marginBottom: 6 }}>{lang === "ar" ? "تفاصيل طرق الدفع" : "Payment method details"}</div>
+        <div style={{ fontSize: 12.5, color: "#9C9280", marginBottom: 14 }}>
+          {lang === "ar"
+            ? "هذي التفاصيل تبان للعميل كي يدوس على أيقونة طريقة الدفع فبوابتك العامة."
+            : "These details are shown to clients when they tap a payment method icon on your public portal."}
+        </div>
+        {PAYMENT_METHOD_KEYS.filter((k) => k !== "cash").map((k) => (
+          <Field key={k} label={t.paymentMethod[k]}>
+            <TextArea value={paymentInfo[k] || ""} onChange={(e) => setPayment(k, e.target.value)} placeholder={PAYMENT_PLACEHOLDERS[k]} style={{ minHeight: 50 }} />
+          </Field>
+        ))}
+      </Card>
+
+      <Card style={{ maxWidth: 520, marginBottom: 18 }}>
         <Btn onClick={save}>{s.save}</Btn>
         {saved && <span style={{ marginInlineStart: 12, fontSize: 13, color: "#5F8A5F" }}>{s.saved}</span>}
       </Card>
